@@ -8,13 +8,13 @@ import (
 )
 
 type TNTRunTask struct {
-	game *TNTRun
+	game  *TNTRun
 	timer int
 }
 
 func NewTNTRunTask(game *TNTRun) *TNTRunTask {
 	return &TNTRunTask{
-		game: game,
+		game:  game,
 		timer: StartTimer,
 	}
 }
@@ -29,7 +29,7 @@ func (t *TNTRunTask) Start() {
 				switch t.game.state {
 				case StateIdle:
 					for _, p := range t.game.players {
-						p.SendPopup(fmt.Sprintf("§eWaiting for %d players", NeededPlayers - len(t.game.players)))
+						p.SendPopup(fmt.Sprintf("§eWaiting for %d players", NeededPlayers-len(t.game.players)))
 					}
 
 				case StateStarting:

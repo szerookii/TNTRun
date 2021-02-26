@@ -10,13 +10,13 @@ import (
 	"reflect"
 )
 
-type LobbbyRunnable struct{
+type LobbbyRunnable struct {
 	Sub lobby
 }
 
 func (r *LobbbyRunnable) Run(source cmd.Source, output *cmd.Output) {
 	if p, ok := source.(*player.Player); ok {
-		pos :=  p.Position()
+		pos := p.Position()
 		pos = mgl64.Vec3{math.Round(pos.X()), math.Round(pos.Y()), math.Round(pos.Z())}
 
 		err := config.UpdateConfig(true, pos)

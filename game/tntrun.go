@@ -15,14 +15,14 @@ import (
 const (
 	MaxPlayers    = 10
 	NeededPlayers = 3
-	StartTimer = 30
-	RestartTimer = 10
+	StartTimer    = 30
+	RestartTimer  = 10
 )
 
 const (
 	TypeMessage = 0
-	TypePopup = 1
-	TypeTitle = 2
+	TypePopup   = 1
+	TypeTitle   = 2
 )
 
 type TNTRun struct {
