@@ -14,8 +14,8 @@ import (
 
 const (
 	MaxPlayers    = 10
-	NeededPlayers = 1
-	StartTimer = 10
+	NeededPlayers = 3
+	StartTimer = 30
 	RestartTimer = 10
 )
 
