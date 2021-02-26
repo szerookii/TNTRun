@@ -46,7 +46,7 @@ func NewTNTRun(srv *dragonfly.Server) *TNTRun {
 	w.SetTime(5000)
 	w.StopTime()
 
-	cmd.Register(cmd.New("game", "", []string{}, &command.LobbbyRunnable{}))
+	cmd.Register(cmd.New("tntrun", "", []string{}, &command.LobbbyRunnable{}))
 
 	game := &TNTRun{
 		srv:        srv,
