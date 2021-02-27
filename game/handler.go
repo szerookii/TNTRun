@@ -55,7 +55,7 @@ func (h *PlayerHandler) HandleQuit() {
 	if h.game.state == StateIdle || h.game.state == StateStarting || h.game.state == StateRunning {
 		h.game.BroadcastMessage(fmt.Sprintf("§e%s §7left the game. §7(§e%d§7/§e%d§7)", h.player.Name(), len(h.game.players), MaxPlayers), TypeMessage)
 
-		if h.game.state == StateRunning {
+		if h.game.state == StateRunning && h.game.IsPlayer(h.player) {
 			h.game.AddSpectator(h.player)
 		}
 	}
