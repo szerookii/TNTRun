@@ -57,7 +57,7 @@ func (h *PlayerHandler) HandleBlockBreak(ctx *event.Context, _ world.BlockPos) {
 	}
 }
 
-func (h *PlayerHandler) HandleBlockPlace(ctx *event.Context, _ world.BlockPos) {
+func (h *PlayerHandler) HandleBlockPlace(ctx *event.Context, _ world.BlockPos, _ world.Block) {
 	if h.game.config.Enabled {
 		ctx.Cancel()
 	}
