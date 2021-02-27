@@ -51,6 +51,18 @@ func (h *PlayerHandler) HandleHurt(ctx *event.Context, _ *float64, source damage
 	ctx.Cancel()
 }
 
+func (h *PlayerHandler) HandleBlockBreak(ctx *event.Context, _ world.BlockPos) {
+	if h.game.config.Enabled {
+		ctx.Cancel()
+	}
+}
+
+func (h *PlayerHandler) HandleBlockPlace(ctx *event.Context, _ world.BlockPos) {
+	if h.game.config.Enabled {
+		ctx.Cancel()
+	}
+}
+
 func (h *PlayerHandler) HandleFoodLoss(ctx *event.Context, _ int, _ int) {
 	ctx.Cancel()
 }
