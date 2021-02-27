@@ -64,7 +64,9 @@ func (h *PlayerHandler) HandleBlockPlace(ctx *event.Context, _ world.BlockPos, _
 }
 
 func (h *PlayerHandler) HandleFoodLoss(ctx *event.Context, _ int, _ int) {
-	ctx.Cancel()
+	if h.game.config.Enabled {
+		ctx.Cancel()
+	}
 }
 
 func (h *PlayerHandler) HandleQuit() {
