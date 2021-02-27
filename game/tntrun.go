@@ -69,7 +69,7 @@ func (t *TNTRun) OnJoin(p *player.Player) {
 		return
 	}
 
-	if t.state != StateIdle || t.state != StateStarting {
+	if t.state != StateIdle && t.state != StateStarting {
 		p.Disconnect("§cThis game is already started.")
 		return
 	}
