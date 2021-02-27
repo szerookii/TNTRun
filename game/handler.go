@@ -51,6 +51,10 @@ func (h *PlayerHandler) HandleHurt(ctx *event.Context, _ *float64, source damage
 	ctx.Cancel()
 }
 
+func (h *PlayerHandler) HandleFoodLoss(ctx *event.Context, _ int, _ int) {
+	ctx.Cancel()
+}
+
 func (h *PlayerHandler) HandleQuit() {
 	if h.game.state == StateIdle || h.game.state == StateStarting || h.game.state == StateRunning {
 		h.game.BroadcastMessage(fmt.Sprintf("§e%s §7left the game. §7(§e%d§7/§e%d§7)", h.player.Name(), len(h.game.players), MaxPlayers), TypeMessage)

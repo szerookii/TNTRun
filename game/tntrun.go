@@ -42,6 +42,7 @@ func NewTNTRun(srv *dragonfly.Server) *TNTRun {
 	}
 
 	w := srv.World()
+	w.ReadOnly()
 	w.SetDefaultGameMode(gamemode.Adventure{})
 	w.SetTime(5000)
 	w.StopTime()
@@ -65,6 +66,11 @@ func NewTNTRun(srv *dragonfly.Server) *TNTRun {
 func (t *TNTRun) OnJoin(p *player.Player) {
 	if len(t.players) >= MaxPlayers {
 		p.Disconnect("§cThis game is full.")
+		return
+	}
+
+	if t.state != StateIdle || t.state != StateStarting {
+		p.Disconnect("§cThis game is already started.")
 		return
 	}
 
