@@ -61,6 +61,8 @@ func (h *PlayerHandler) HandleQuit() {
 
 		if h.game.state == StateRunning && h.game.IsPlayer(h.player) {
 			h.game.AddSpectator(h.player)
+		} else {
+			h.game.RemovePlayer(h.player)
 		}
 	}
 }
