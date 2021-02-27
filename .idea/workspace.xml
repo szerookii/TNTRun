@@ -2,6 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="3bf13ae0-39ba-4ab9-996c-54f3fc74abd7" name="Default Changelist" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/game/handler.go" beforeDir="false" afterPath="$PROJECT_DIR$/game/handler.go" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
