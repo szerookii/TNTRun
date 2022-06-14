@@ -3,8 +3,8 @@ package main
 import (
 	"fmt"
 	"github.com/Seyz123/tntrun/game"
-	"github.com/df-mc/dragonfly/dragonfly"
-	"github.com/df-mc/dragonfly/dragonfly/player/chat"
+	"github.com/df-mc/dragonfly/server"
+	"github.com/df-mc/dragonfly/server/player/chat"
 	"github.com/pelletier/go-toml"
 	"github.com/sirupsen/logrus"
 	"io/ioutil"
@@ -23,27 +23,21 @@ func main() {
 		log.Fatalf("error reading server config file: %v", err)
 	}
 
-	server := dragonfly.New(&serverConfig, log)
-	server.CloseOnProgramEnd()
-	if err := server.Start(); err != nil {
+	serv := server.New(&serverConfig, log)
+	serv.CloseOnProgramEnd()
+	if err := serv.Start(); err != nil {
 		log.Fatalln(err)
 	}
 
-	tntrun := game.NewTNTRun(server)
+	tntrun := game.NewTNTRun(serv)
 
-	for {
-		p, err := server.Accept()
+	for serv.Accept(tntrun.OnJoin) {
 
-		if err != nil {
-			break
-		}
-
-		tntrun.OnJoin(p)
 	}
 }
 
-func readConfig() (dragonfly.Config, error) {
-	c := dragonfly.DefaultConfig()
+func readConfig() (server.Config, error) {
+	c := server.DefaultConfig()
 	c.Server.JoinMessage = ""
 	c.Server.QuitMessage = ""
 

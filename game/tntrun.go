@@ -5,11 +5,11 @@ import (
 	"github.com/Seyz123/tntrun/game/command"
 	"github.com/Seyz123/tntrun/game/config"
 	"github.com/Seyz123/tntrun/game/utils"
-	"github.com/df-mc/dragonfly/dragonfly"
-	"github.com/df-mc/dragonfly/dragonfly/cmd"
-	"github.com/df-mc/dragonfly/dragonfly/player"
-	"github.com/df-mc/dragonfly/dragonfly/player/title"
-	"github.com/df-mc/dragonfly/dragonfly/world/gamemode"
+	"github.com/df-mc/dragonfly/server"
+	"github.com/df-mc/dragonfly/server/cmd"
+	"github.com/df-mc/dragonfly/server/player"
+	"github.com/df-mc/dragonfly/server/player/title"
+	"github.com/df-mc/dragonfly/server/world"
 )
 
 const (
@@ -26,7 +26,7 @@ const (
 )
 
 type TNTRun struct {
-	srv        *dragonfly.Server
+	srv        *server.Server
 	config     *config.Config
 	state      int
 	task       *TNTRunTask
@@ -34,7 +34,7 @@ type TNTRun struct {
 	spectators []*player.Player
 }
 
-func NewTNTRun(srv *dragonfly.Server) *TNTRun {
+func NewTNTRun(srv *server.Server) *TNTRun {
 	conf, err := config.GetConfig()
 
 	if err != nil {
@@ -42,12 +42,11 @@ func NewTNTRun(srv *dragonfly.Server) *TNTRun {
 	}
 
 	w := srv.World()
-	w.ReadOnly()
-	w.SetDefaultGameMode(gamemode.Adventure{})
+	w.SetDefaultGameMode(world.GameModeAdventure)
 	w.SetTime(5000)
 	w.StopTime()
 
-	cmd.Register(cmd.New("tntrun", "", []string{}, &command.LobbbyRunnable{}))
+	cmd.Register(cmd.New("tntrun", "", []string{}, &command.LobbyRunnable{}))
 
 	game := &TNTRun{
 		srv:        srv,
@@ -75,11 +74,11 @@ func (t *TNTRun) OnJoin(p *player.Player) {
 	}
 
 	if !t.config.Enabled {
-		p.SetGameMode(gamemode.Creative{})
+		p.SetGameMode(world.GameModeCreative)
 	} else {
 		t.players = append(t.players, p)
 
-		p.SetGameMode(gamemode.Adventure{})
+		p.SetGameMode(world.GameModeAdventure)
 		p.Teleport(t.config.Lobby)
 		p.Handle(NewPlayerHandler(t, p))
 
@@ -128,7 +127,7 @@ func (t *TNTRun) AddSpectator(player *player.Player) {
 	t.RemovePlayer(player)
 
 	t.spectators = append(t.spectators, player)
-	player.SetGameMode(gamemode.Spectator{})
+	player.SetGameMode(world.GameModeSpectator)
 	player.Teleport(t.config.Lobby)
 
 	t.CheckWinner()
