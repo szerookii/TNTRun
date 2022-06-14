@@ -2,8 +2,8 @@ package game
 
 import (
 	"fmt"
-	"github.com/df-mc/dragonfly/dragonfly/player/title"
-	"github.com/df-mc/dragonfly/dragonfly/world/sound"
+	"github.com/df-mc/dragonfly/server/player/title"
+	"github.com/df-mc/dragonfly/server/world/sound"
 	"time"
 )
 
