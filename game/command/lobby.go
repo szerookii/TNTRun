@@ -9,8 +9,10 @@ import (
 	"math"
 )
 
+// LobbyRunnable ...
 type LobbyRunnable struct{}
 
+// Run ...
 func (LobbyRunnable) Run(src cmd.Source, o *cmd.Output) {
 	if p, ok := src.(*player.Player); ok {
 		pos := p.Position()
@@ -26,6 +28,7 @@ func (LobbyRunnable) Run(src cmd.Source, o *cmd.Output) {
 	}
 }
 
+// Allow ...
 func (LobbyRunnable) Allow(s cmd.Source) bool {
 	_, ok := s.(*player.Player)
 	return ok

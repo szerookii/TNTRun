@@ -7,11 +7,13 @@ import (
 	"time"
 )
 
+// TNTRunTask ...
 type TNTRunTask struct {
 	game  *TNTRun
 	timer int
 }
 
+// NewTNTRunTask ...
 func NewTNTRunTask(game *TNTRun) *TNTRunTask {
 	return &TNTRunTask{
 		game:  game,
@@ -19,6 +21,7 @@ func NewTNTRunTask(game *TNTRun) *TNTRunTask {
 	}
 }
 
+// Start ...
 func (t *TNTRunTask) Start() {
 	go func() {
 		ticker := time.NewTicker(time.Second)

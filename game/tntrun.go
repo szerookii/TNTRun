@@ -25,6 +25,7 @@ const (
 	TypeTitle   = 2
 )
 
+// TNTRun ...
 type TNTRun struct {
 	srv        *server.Server
 	config     *config.Config
@@ -34,6 +35,7 @@ type TNTRun struct {
 	spectators []*player.Player
 }
 
+// NewTNTRun ...
 func NewTNTRun(srv *server.Server) *TNTRun {
 	conf, err := config.GetConfig()
 
@@ -62,6 +64,7 @@ func NewTNTRun(srv *server.Server) *TNTRun {
 	return game
 }
 
+// OnJoin ...
 func (t *TNTRun) OnJoin(p *player.Player) {
 	if len(t.players) >= MaxPlayers {
 		p.Disconnect("§cThis game is full.")
@@ -90,6 +93,7 @@ func (t *TNTRun) OnJoin(p *player.Player) {
 	}
 }
 
+// BroadcastMessage ...
 func (t *TNTRun) BroadcastMessage(msg string, msgType int) {
 	var players []*player.Player
 	players = append(players, t.players...)
@@ -106,6 +110,7 @@ func (t *TNTRun) BroadcastMessage(msg string, msgType int) {
 	}
 }
 
+// CheckWinner ...
 func (t *TNTRun) CheckWinner() {
 	if len(t.players) == 1 {
 		winner := t.players[0]
@@ -122,6 +127,7 @@ func (t *TNTRun) CheckWinner() {
 	}
 }
 
+// AddSpectator ...
 func (t *TNTRun) AddSpectator(player *player.Player) {
 	t.BroadcastMessage(fmt.Sprintf("§e%s §7has been eliminated", player.Name()), TypeMessage)
 	t.RemovePlayer(player)
@@ -133,6 +139,7 @@ func (t *TNTRun) AddSpectator(player *player.Player) {
 	t.CheckWinner()
 }
 
+// IsPlayer ...
 func (t *TNTRun) IsPlayer(player *player.Player) bool {
 	for _, p := range t.players {
 		if player.Name() == p.Name() {
@@ -143,6 +150,7 @@ func (t *TNTRun) IsPlayer(player *player.Player) bool {
 	return false
 }
 
+// RemovePlayer ...
 func (t *TNTRun) RemovePlayer(player *player.Player) {
 	for i, p := range t.players {
 		if player.Name() == p.Name() {
