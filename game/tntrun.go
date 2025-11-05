@@ -2,6 +2,7 @@ package game
 
 import (
 	"fmt"
+
 	"github.com/Seyz123/tntrun/game/command"
 	"github.com/Seyz123/tntrun/game/config"
 	"github.com/Seyz123/tntrun/game/utils"
@@ -14,8 +15,8 @@ import (
 
 const (
 	MaxPlayers    = 10
-	NeededPlayers = 3
-	StartTimer    = 30
+	NeededPlayers = 1
+	StartTimer    = 5
 	RestartTimer  = 10
 )
 
@@ -31,8 +32,8 @@ type TNTRun struct {
 	config     *config.Config
 	state      int
 	task       *TNTRunTask
-	players    []*player.Player
-	spectators []*player.Player
+	players    []*world.EntityHandle
+	spectators []*world.EntityHandle
 }
 
 // NewTNTRun ...
@@ -54,8 +55,8 @@ func NewTNTRun(srv *server.Server) *TNTRun {
 		srv:        srv,
 		config:     conf,
 		state:      StateIdle,
-		players:    []*player.Player{},
-		spectators: []*player.Player{},
+		players:    []*world.EntityHandle{},
+		spectators: []*world.EntityHandle{},
 	}
 
 	game.task = NewTNTRunTask(game)
@@ -79,7 +80,7 @@ func (t *TNTRun) OnJoin(p *player.Player) {
 	if !t.config.Enabled {
 		p.SetGameMode(world.GameModeCreative)
 	} else {
-		t.players = append(t.players, p)
+		t.players = append(t.players, p.H())
 
 		p.SetGameMode(world.GameModeAdventure)
 		p.Teleport(t.config.Lobby)
@@ -95,27 +96,46 @@ func (t *TNTRun) OnJoin(p *player.Player) {
 
 // BroadcastMessage ...
 func (t *TNTRun) BroadcastMessage(msg string, msgType int) {
-	var players []*player.Player
-	players = append(players, t.players...)
-	players = append(players, t.spectators...)
+	w := t.srv.World()
+	w.Exec(func(tx *world.Tx) {
+		playerCount := 0
+		for entity := range tx.Entities() {
+			if player, ok := entity.(*player.Player); ok {
+				if t.IsPlayer(player) || t.IsSpectator(player) {
+					playerCount++
+					switch msgType {
+					case TypeMessage:
+						player.Message(msg)
+					case TypePopup:
+						player.SendPopup(msg)
+					case TypeTitle:
+						player.SendTitle(title.New(msg))
+					}
+				}
+			}
+		}
+	})
+}
 
-	for _, p := range players {
-		if msgType == TypeMessage {
-			p.Message(msg)
-		} else if msgType == TypePopup {
-			p.SendPopup(msg)
-		} else if msgType == TypeTitle {
-			p.SendTitle(title.New(msg))
+// IsSpectator ...
+func (t *TNTRun) IsSpectator(player *player.Player) bool {
+	playerUUID := player.UUID()
+	for _, handle := range t.spectators {
+		if handle.UUID() == playerUUID {
+			return true
 		}
 	}
+	return false
 }
 
 // CheckWinner ...
 func (t *TNTRun) CheckWinner() {
 	if len(t.players) == 1 {
-		winner := t.players[0]
-
-		t.BroadcastMessage(fmt.Sprintf("§e%s §7won the game!", winner.Name()), TypeMessage)
+		winnerHandle := t.players[0]
+		winner := utils.EntityHandleToEntity[player.Player](winnerHandle)
+		if winner != nil {
+			t.BroadcastMessage(fmt.Sprintf("§e%s §7won the game!", winner.Name()), TypeMessage)
+		}
 
 		t.task.timer = RestartTimer
 		t.state = StateRestarting
@@ -127,22 +147,35 @@ func (t *TNTRun) CheckWinner() {
 	}
 }
 
-// AddSpectator ...
-func (t *TNTRun) AddSpectator(player *player.Player) {
-	t.BroadcastMessage(fmt.Sprintf("§e%s §7has been eliminated", player.Name()), TypeMessage)
-	t.RemovePlayer(player)
+func (t *TNTRun) AddSpectator(p *player.Player) {
+	t.spectators = append(t.spectators, p.H())
 
-	t.spectators = append(t.spectators, player)
-	player.SetGameMode(world.GameModeSpectator)
-	player.Teleport(t.config.Lobby)
+	p.SetGameMode(world.GameModeSpectator)
+	p.Teleport(t.config.Lobby)
+
+	t.RemovePlayerHandle(p.H())
+	t.BroadcastMessage(fmt.Sprintf("§e%s §7has been eliminated", p.Name()), TypeMessage)
 
 	t.CheckWinner()
 }
 
 // IsPlayer ...
 func (t *TNTRun) IsPlayer(player *player.Player) bool {
-	for _, p := range t.players {
-		if player.Name() == p.Name() {
+	playerUUID := player.UUID()
+	for _, handle := range t.players {
+		if handle.UUID() == playerUUID {
+			return true
+		}
+	}
+
+	return false
+}
+
+// IsPlayerByHandle ...
+func (t *TNTRun) IsPlayerByHandle(playerHandle *world.EntityHandle) bool {
+	targetUUID := playerHandle.UUID()
+	for _, handle := range t.players {
+		if handle.UUID() == targetUUID {
 			return true
 		}
 	}
@@ -152,8 +185,19 @@ func (t *TNTRun) IsPlayer(player *player.Player) bool {
 
 // RemovePlayer ...
 func (t *TNTRun) RemovePlayer(player *player.Player) {
-	for i, p := range t.players {
-		if player.Name() == p.Name() {
+	playerUUID := player.UUID()
+	for i, handle := range t.players {
+		if handle.UUID() == playerUUID {
+			t.players = utils.RemoveIndex(t.players, i)
+		}
+	}
+}
+
+// RemovePlayerHandle ...
+func (t *TNTRun) RemovePlayerHandle(playerHandle *world.EntityHandle) {
+	targetUUID := playerHandle.UUID()
+	for i, handle := range t.players {
+		if handle.UUID() == targetUUID {
 			t.players = utils.RemoveIndex(t.players, i)
 		}
 	}

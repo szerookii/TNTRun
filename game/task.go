@@ -2,8 +2,6 @@ package game
 
 import (
 	"fmt"
-	"github.com/df-mc/dragonfly/server/player/title"
-	"github.com/df-mc/dragonfly/server/world/sound"
 	"time"
 )
 
@@ -25,50 +23,40 @@ func NewTNTRunTask(game *TNTRun) *TNTRunTask {
 func (t *TNTRunTask) Start() {
 	go func() {
 		ticker := time.NewTicker(time.Second)
+		defer ticker.Stop()
 
-		for {
-			select {
-			case <-ticker.C:
-				switch t.game.state {
-				case StateIdle:
-					for _, p := range t.game.players {
-						p.SendPopup(fmt.Sprintf("§eWaiting for %d players", NeededPlayers-len(t.game.players)))
-					}
-
-				case StateStarting:
-					if t.timer > 0 {
-						for _, p := range t.game.players {
-							if t.timer <= 5 {
-								p.SendTitle(title.New(fmt.Sprintf("§e%d", t.timer)))
-								p.PlaySound(sound.Click{})
-							}
-
-							p.SendPopup(fmt.Sprintf("§eStarting in %d...", t.timer))
-						}
-
-						t.timer--
-					} else {
-						for _, p := range t.game.players {
-							p.SendTitle(title.New("§eGame Started!"))
-							p.PlaySound(sound.Explosion{})
-						}
-
-						t.game.state = StateRunning
-					}
-
-				case StateRunning:
-					t.game.BroadcastMessage(fmt.Sprintf("§e%d players remaining", len(t.game.players)), TypePopup)
-
-				case StateRestarting:
-					if t.timer > 0 {
-						t.game.BroadcastMessage(fmt.Sprintf("§eRestarting in %d...", t.timer), TypePopup)
-
-						t.timer--
-					} else {
-						_ = t.game.srv.Close()
-					}
-
+		for range ticker.C {
+			switch t.game.state {
+			case StateIdle:
+				if len(t.game.players) < NeededPlayers {
+					t.game.BroadcastMessage(fmt.Sprintf("§eWaiting for %d players", NeededPlayers-len(t.game.players)), TypePopup)
 				}
+
+			case StateStarting:
+				if t.timer > 0 {
+					if t.timer <= 5 {
+						t.game.BroadcastMessage(fmt.Sprintf("§e%d", t.timer), TypeTitle)
+						// TODO: Add sound support later
+					}
+
+					t.game.BroadcastMessage(fmt.Sprintf("§eStarting in %d...", t.timer), TypePopup)
+					t.timer--
+				} else {
+					t.game.BroadcastMessage("§eGame Started!", TypeTitle)
+					t.game.state = StateRunning
+				}
+
+			case StateRunning:
+				t.game.BroadcastMessage(fmt.Sprintf("§e%d players remaining", len(t.game.players)), TypePopup)
+
+			case StateRestarting:
+				if t.timer > 0 {
+					t.game.BroadcastMessage(fmt.Sprintf("§eRestarting in %d...", t.timer), TypePopup)
+					t.timer--
+				} else {
+					_ = t.game.srv.Close()
+				}
+
 			}
 		}
 	}()
