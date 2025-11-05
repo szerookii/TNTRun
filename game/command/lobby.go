@@ -25,7 +25,7 @@ func (LobbyRunnable) Run(src cmd.Source, o *cmd.Output, tx *world.Tx) {
 		if err != nil {
 			o.Print(text.Colourf("<red>Cannot set the lobby position!</red>"))
 		} else {
-			o.Printf("%s", text.Colourf("<green>Lobby position set to X: %d, Y: %d, Z: %d</green>", int(pos.X()), int(pos.Y()), int(pos.Z())))
+			o.Print(text.Colourf("<green>Lobby position set to X: %d, Y: %d, Z: %d</green>", int(pos.X()), int(pos.Y()), int(pos.Z())))
 		}
 	}
 }
